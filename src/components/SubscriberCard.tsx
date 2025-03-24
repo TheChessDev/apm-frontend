@@ -1,8 +1,8 @@
 "use client";
 
+import { HttpSDK, Message } from "@chessdev/apm-sdk-demo";
 import dayjs from "dayjs";
-import { use } from "react";
-import { useSSE } from "./hooks/useSSE";
+import { use, useRef, useState } from "react";
 import { TopicContext } from "./TopicContext";
 import { Button } from "./ui/button";
 import {
@@ -22,11 +22,23 @@ type Props = {
 
 export function SubscriberCard({ onDisconnect, id }: Props) {
   const topic = use(TopicContext);
+  const [currentMessage, setCurrentMessage] = useState<Message | null>(null);
+  const isRegistered = useRef(false);
 
-  const { data, cancel } = useSSE(`/api/pollMessages?topic=${topic}`);
+  const sdk = new HttpSDK(
+    process.env.NEXT_PUBLIC_SDK_BASE_URL!,
+    process.env.NEXT_PUBLIC_SDK_TOKEN!,
+  );
 
-  const formattedDate = data
-    ? dayjs(data.createdAt).format("MMM D, YYYY h:mm A")
+  if (topic && !isRegistered.current) {
+    isRegistered.current = true;
+    sdk.listen(topic, async (message: Message) => {
+      setCurrentMessage(message);
+    });
+  }
+
+  const formattedDate = currentMessage
+    ? dayjs(currentMessage.createdAt).format("MMM D, YYYY h:mm A")
     : "";
 
   return (
@@ -34,9 +46,10 @@ export function SubscriberCard({ onDisconnect, id }: Props) {
       <CardHeader>
         <CardTitle>{id}</CardTitle>
         <CardDescription>
-          {data ? (
+          {currentMessage ? (
             <div className="p-2">
-              (ID): {data.id} - (message): {data.name} - (date): {formattedDate}
+              (ID): {currentMessage.id} - (message): {currentMessage.name} -
+              (date): {formattedDate}
             </div>
           ) : (
             <div className="space-y-2 p-2">
@@ -51,7 +64,6 @@ export function SubscriberCard({ onDisconnect, id }: Props) {
         <Button
           variant="destructive"
           onClick={() => {
-            cancel();
             onDisconnect();
           }}
         >
