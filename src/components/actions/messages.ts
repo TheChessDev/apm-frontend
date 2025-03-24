@@ -23,9 +23,3 @@ export const createMessage = async (topic: string, formData: FormData) => {
 
   return sdk.send(topic, message);
 };
-
-export const pollMessages = async (topic: string) => {
-  const sdk = new HttpSDK(process.env.SDK_TOKEN!, process.env.SDK_BASE_URL!);
-
-  return sdk.send(topic, message);
-};
