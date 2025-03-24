@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { createContext, useState } from "react";
+import { createContext, use, useEffect, useState } from "react";
+import { TopicContext } from "./TopicContext";
 
 export const SubscriberContext = createContext<string[]>([]);
 export const SubscriberDispatchContext = createContext<{
@@ -14,7 +15,12 @@ type Props = {
 };
 
 export function SubscriberProvider({ children }: Props) {
+  const topic = use(TopicContext);
   const [subscribers, setSubscribers] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSubscribers([]);
+  }, [topic]);
 
   const addSubscriber = () => {
     const newId = `Subscriber-${Date.now()}`;

@@ -8,6 +8,7 @@ export const refreshToken = async () => {
   });
 
   if (!response.ok) {
+    console.log(">>> response", response);
     throw new Error("Failed to refresh token");
   }
 
