@@ -1,21 +1,22 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
-  CommandInput,
-  CommandEmpty,
 } from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
+import { TopicDispatchContext } from "./TopicContext";
 
 interface TopicSelectorProps {
   initialTopics?: string[];
@@ -24,13 +25,14 @@ interface TopicSelectorProps {
 }
 
 export function TopicSelector({
-  initialTopics = ["demo-topic", "another-topic", "test-topic"],
+  initialTopics = [],
   onTopicSelected,
   className,
 }: TopicSelectorProps) {
   const [topics, setTopics] = useState<string[]>(initialTopics);
   const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
+  const setTopic = use(TopicDispatchContext);
 
   const filteredTopics = useMemo(
     () =>
@@ -43,6 +45,9 @@ export function TopicSelector({
       onTopicSelected(topic);
     }
     setSearchValue(topic);
+    if (setTopic) {
+      setTopic(topic);
+    }
     setOpen(false);
   };
 
@@ -63,7 +68,7 @@ export function TopicSelector({
           variant="outline"
           className={cn("w-[240px] justify-between", className)}
         >
-          {searchValue || "Select or create a topic"}
+          {searchValue || "Select or Create a Topic"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[240px]">
