@@ -1,3 +1,4 @@
+import { refreshToken } from "@/lib/refreshToken";
 import { HttpSDK, Message } from "@chessdev/apm-sdk-demo";
 import { NextResponse } from "next/server";
 
@@ -24,10 +25,8 @@ export async function GET(req: Request) {
         controller.close();
       });
 
-      const sdk = new HttpSDK(
-        process.env.SDK_TOKEN!,
-        process.env.SDK_BASE_URL!,
-      );
+      const accessToken = await refreshToken();
+      const sdk = new HttpSDK(process.env.SDK_BASE_URL!, accessToken);
 
       sdk.listen(topic, async (message: Message) => {
         if (aborted) {
